@@ -1,4 +1,4 @@
-package com.aubay.challenge.backend;
+package com.aubay.challenge.backend.controller;
 
 import java.util.List;
 
@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aubay.challenge.backend.entity.User;
+import com.aubay.challenge.backend.service.UserService;
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/user")
 public class UserController {
 
 	UserService service;
@@ -31,9 +32,10 @@ public class UserController {
 
 	@PostMapping
 	public ResponseEntity<User> saveUser(@RequestBody User user) {
+
 		User usr = service.save(user);
 		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.add("user", "/api/v1/user/" + user.getId().toString());
+		httpHeaders.add("user", "/user/" + user.getId().toString());
 		return new ResponseEntity<>(usr, httpHeaders, HttpStatus.CREATED);
 	}
 

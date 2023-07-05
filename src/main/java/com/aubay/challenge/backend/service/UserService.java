@@ -1,4 +1,4 @@
-package com.aubay.challenge.backend;
+package com.aubay.challenge.backend.service;
 
 import java.util.List;
 
@@ -9,5 +9,7 @@ public interface UserService {
 	public List<User> listAll();
 
 	public User save(User user);
+
+	public void registerDefaultUser(User user);
 
 }
