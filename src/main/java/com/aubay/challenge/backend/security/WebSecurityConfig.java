@@ -1,4 +1,4 @@
-package com.aubay.challenge.backend;
+package com.aubay.challenge.backend.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,16 +14,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.aubay.challenge.backend.security.AuthEntryPointJwt;
-import com.aubay.challenge.backend.security.AuthTokenFilter;
 import com.aubay.challenge.backend.service.UserDetailsServiceImpl;
 
 @Configuration
 @EnableMethodSecurity
-// (securedEnabled = true,
-// jsr250Enabled = true,
-// prePostEnabled = true) // by default
-public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
 	@Autowired
 	UserDetailsServiceImpl userDetailsService;
 

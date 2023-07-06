@@ -43,7 +43,7 @@ public class AuthenticationController {
 	JwtUtils jwtUtils;
 
 	@PostMapping
-	public ResponseEntity<?> login(@RequestBody @Valid AuthRequest request) {
+	public ResponseEntity<JwtResponse> login(@RequestBody @Valid AuthRequest request) {
 
 		Authentication authentication = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));

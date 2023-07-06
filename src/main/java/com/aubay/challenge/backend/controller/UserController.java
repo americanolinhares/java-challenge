@@ -9,11 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.aubay.challenge.backend.entity.NewRole;
 import com.aubay.challenge.backend.entity.User;
 import com.aubay.challenge.backend.service.UserServiceImpl;
 
@@ -49,14 +52,24 @@ public class UserController {
 		return "Admin Board.";
 	}
 
-	@PostMapping("/create")
+	@PostMapping("/registration")
 	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<User> saveUser(@RequestBody User user) {
+	public ResponseEntity<User> createUser(@RequestBody User user) {
 
-		User usr = service.save(user);
+		User usr = service.registerDefaultUser(user);
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add("user", "/user/" + user.getId().toString());
 		return new ResponseEntity<>(usr, httpHeaders, HttpStatus.CREATED);
+	}
+
+	@PutMapping("/{id}/roles")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<User> editUser(@PathVariable Long id, @RequestBody NewRole role) {
+
+		User usr = service.edit(id, role);
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.add("user", "/user/" + id.toString());
+		return new ResponseEntity<>(usr, httpHeaders, HttpStatus.ACCEPTED);
 	}
 
 }
