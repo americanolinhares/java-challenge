@@ -1,14 +1,15 @@
 package com.aubay.challenge.backend.repository;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.userdetails.UserDetails;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.aubay.challenge.backend.entity.User;
 
-public interface UserRepository extends CrudRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-	@Query("SELECT u FROM User u WHERE u.username = :username")
-	UserDetails findByLogin(@Param("username") String username);
+	Optional<User> findByUsername(String username);
+
+	Boolean existsByUsername(String username);
+
 }

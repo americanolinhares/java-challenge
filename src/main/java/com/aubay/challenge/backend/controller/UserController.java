@@ -2,9 +2,12 @@ package com.aubay.challenge.backend.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,25 +15,42 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aubay.challenge.backend.entity.User;
-import com.aubay.challenge.backend.service.UserService;
+import com.aubay.challenge.backend.service.UserServiceImpl;
 
 @RestController
 @RequestMapping("/user")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class UserController {
 
-	UserService service;
+	@Autowired
+	UserServiceImpl service;
 
-	public UserController(UserService userService) {
-		this.service = userService;
+	@GetMapping("/all")
+	public String allAccess() {
+		return "Public Content.";
 	}
 
-	@GetMapping
+	@GetMapping("/list")
+	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	public ResponseEntity<List<User>> getAllTodos() {
 		List<User> users = service.listAll();
 		return new ResponseEntity<>(users, HttpStatus.OK);
 	}
 
-	@PostMapping
+	@GetMapping("/userboard")
+	@PreAuthorize("hasRole('USER')")
+	public String userAccess() {
+		return "User Board.";
+	}
+
+	@GetMapping("/admin")
+	@PreAuthorize("hasRole('ADMIN')")
+	public String adminAccess() {
+		return "Admin Board.";
+	}
+
+	@PostMapping("/create")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<User> saveUser(@RequestBody User user) {
 
 		User usr = service.save(user);
