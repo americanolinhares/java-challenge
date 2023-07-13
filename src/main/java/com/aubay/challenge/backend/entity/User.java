@@ -2,7 +2,6 @@ package com.aubay.challenge.backend.entity;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,72 +17,94 @@ import jakarta.persistence.Table;
 @Table(name = "users")
 public class User {
 
-	@Id
-	@Column(name = "user_id")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+  @Id
+  @Column(name = "user_id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-	@Column(nullable = false, unique = true, length = 45)
-	private String username;
+  @Column(nullable = false, unique = true, length = 45)
+  private String username;
 
-	@Column(nullable = false, length = 64)
-	private String password;
+  @Column(nullable = false, length = 64)
+  private String password;
 
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-	private Set<Role> roles = new HashSet<>();
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "role_id"))
+  private Set<Role> roles = new HashSet<>();
 
-	public void addRole(Role role) {
-		this.roles.add(role);
-	}
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "users_movies", joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "movie_id"))
+  private Set<Movie> favoriteMovies = new HashSet<>();
 
-	public User() {
-	}
+  public void addRole(Role role) {
+    this.roles.add(role);
+  }
 
-	public User(Long id, String username, String password, Set<Role> roles) {
-		super();
-		this.id = id;
-		this.username = username;
-		this.password = password;
-		this.roles = roles;
-	}
+  public void addMovie(Movie movie) {
+    this.favoriteMovies.add(movie);
+  }
 
-	public User(String username, String password, Set<Role> roles) {
-		super();
-		this.username = username;
-		this.password = password;
-		this.roles = roles;
-	}
+  public void removeMovie(Movie movie) {
+    this.favoriteMovies.remove(movie);
+  }
 
-	public Long getId() {
-		return id;
-	}
+  public User() {}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+  public User(Long id, String username, String password, Set<Role> roles, Set<Movie> movies) {
+    super();
+    this.id = id;
+    this.username = username;
+    this.password = password;
+    this.roles = roles;
+    this.favoriteMovies = movies;
+  }
 
-	public String getUsername() {
-		return username;
-	}
+  public User(String username, String password, Set<Role> roles) {
+    super();
+    this.username = username;
+    this.password = password;
+    this.roles = roles;
+  }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+  public Long getId() {
+    return id;
+  }
 
-	public String getPassword() {
-		return password;
-	}
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+  public String getUsername() {
+    return username;
+  }
 
-	public Set<Role> getRoles() {
-		return roles;
-	}
+  public void setUsername(String username) {
+    this.username = username;
+  }
 
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
-	}
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public Set<Role> getRoles() {
+    return roles;
+  }
+
+  public void setRoles(Set<Role> roles) {
+    this.roles = roles;
+  }
+
+  public Set<Movie> getFavoriteMovies() {
+    return favoriteMovies;
+  }
+
+  public void setFavoriteMovies(Set<Movie> favoriteMovies) {
+    this.favoriteMovies = favoriteMovies;
+  }
 }

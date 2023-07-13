@@ -1,16 +1,17 @@
 package com.aubay.challenge.backend.service;
 
-import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.aubay.challenge.backend.entity.Movie;
 import com.aubay.challenge.backend.entity.NewRole;
+import com.aubay.challenge.backend.entity.RequestMovie;
 import com.aubay.challenge.backend.entity.Role;
 import com.aubay.challenge.backend.entity.User;
+import com.aubay.challenge.backend.repository.MovieRepository;
 import com.aubay.challenge.backend.repository.RoleRepository;
 import com.aubay.challenge.backend.repository.UserRepository;
 
@@ -18,40 +19,72 @@ import com.aubay.challenge.backend.repository.UserRepository;
 @Transactional
 public class UserServiceImpl {
 
-	@Autowired
-	UserRepository userRepo;
+  @Autowired
+  UserRepository userRepository;
 
-	@Autowired
-	RoleRepository roleRepo;
+  @Autowired
+  RoleRepository roleRepository;
 
-	@Autowired
-	private BCryptPasswordEncoder bcryptEncoder;
+  @Autowired
+  MovieRepository movieRepository;
 
-	public List<User> listAll() {
+  @Autowired
+  private BCryptPasswordEncoder bcryptEncoder;
 
-		List<User> users = new ArrayList<>();
-		userRepo.findAll().forEach(users::add);
-		return users;
-	}
+  public List<User> listAll() {
+    return userRepository.findAll();
+  }
 
-	public User edit(Long id, NewRole newRole) {
+  public Set<Movie> listFavoriteMovies(String username) {
 
-		User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-		Role role = roleRepo.findByName(newRole.name()).orElseThrow(() -> new RuntimeException("Role not found"));
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+    return user.getFavoriteMovies();
+  }
 
-		user.addRole(role);
+  public User edit(Long id, NewRole newRole) {
 
-		return userRepo.save(user);
-	}
+    User user =
+        userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    Role role = roleRepository.findByName(newRole.name())
+        .orElseThrow(() -> new RuntimeException("Role not found"));
+    user.addRole(role);
 
-	public User registerDefaultUser(User user) {
+    return userRepository.save(user);
+  }
 
-		user.setPassword(bcryptEncoder.encode(user.getPassword()));
-		Role role = roleRepo.findByName("ROLE_USER").orElseThrow(() -> new RuntimeException("Role not found"));
+  public User addMovie(Long id, RequestMovie newMovie) {
 
-		user.addRole(role);
+    User user =
+        userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    Movie movie = movieRepository.findByOriginalTitle(newMovie.title())
+        .orElseThrow(() -> new RuntimeException("Movie not found"));
+    movie.addStarNumber();
+    user.addMovie(movie);
 
-		return userRepo.save(user);
-	}
+    return userRepository.save(user);
+  }
+
+  public User removeMovie(Long id, RequestMovie newMovie) {
+
+    User user =
+        userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    Movie movie = movieRepository.findByOriginalTitle(newMovie.title())
+        .orElseThrow(() -> new RuntimeException("Movie not found"));
+    movie.subtractStarNumber();
+    user.removeMovie(movie);
+
+    return userRepository.save(user);
+  }
+
+  public User registerDefaultUser(User user) {
+
+    user.setPassword(bcryptEncoder.encode(user.getPassword()));
+    Role role = roleRepository.findByName("ROLE_USER")
+        .orElseThrow(() -> new RuntimeException("Role not found"));
+    user.addRole(role);
+
+    return userRepository.save(user);
+  }
 
 }
