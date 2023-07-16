@@ -76,12 +76,19 @@ public class UserDetailsImpl implements UserDetails {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o)
+  public int hashCode() {
+    return Objects.hash(id);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
       return true;
-    if (o == null || getClass() != o.getClass())
+    if (obj == null)
       return false;
-    UserDetailsImpl user = (UserDetailsImpl) o;
-    return Objects.equals(id, user.id);
+    if (getClass() != obj.getClass())
+      return false;
+    UserDetailsImpl other = (UserDetailsImpl) obj;
+    return Objects.equals(id, other.id);
   }
 }

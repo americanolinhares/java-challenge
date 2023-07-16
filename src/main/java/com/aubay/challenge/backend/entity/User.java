@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name = "users")
@@ -22,10 +23,12 @@ public class User {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false, unique = true, length = 45)
+  @NotEmpty(message = "The username is required.")
+  @Column(name = "username", nullable = false, unique = true, length = 45)
   private String username;
 
-  @Column(nullable = false, length = 64)
+  @NotEmpty(message = "The password is required.")
+  @Column(name = "password", nullable = false, length = 64)
   private String password;
 
   @ManyToMany(fetch = FetchType.LAZY)
@@ -37,18 +40,6 @@ public class User {
   @JoinTable(name = "users_movies", joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "movie_id"))
   private Set<Movie> favoriteMovies = new HashSet<>();
-
-  public void addRole(Role role) {
-    this.roles.add(role);
-  }
-
-  public void addMovie(Movie movie) {
-    this.favoriteMovies.add(movie);
-  }
-
-  public void removeMovie(Movie movie) {
-    this.favoriteMovies.remove(movie);
-  }
 
   public User() {}
 
@@ -66,6 +57,18 @@ public class User {
     this.username = username;
     this.password = password;
     this.roles = roles;
+  }
+
+  public void addRole(Role role) {
+    this.roles.add(role);
+  }
+
+  public void addMovie(Movie movie) {
+    this.favoriteMovies.add(movie);
+  }
+
+  public void removeMovie(Movie movie) {
+    this.favoriteMovies.remove(movie);
   }
 
   public Long getId() {

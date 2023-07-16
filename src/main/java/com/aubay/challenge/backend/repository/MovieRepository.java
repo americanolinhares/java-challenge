@@ -10,6 +10,6 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 
   Optional<Movie> findByOriginalTitle(@Param("title") String title);
 
-  List<Movie> findTop3ByOrderByStarNumberDesc();
+  List<Movie> findTop10ByOrderByStarNumberDesc();
 
 }

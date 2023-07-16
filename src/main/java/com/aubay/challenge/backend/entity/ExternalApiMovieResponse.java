@@ -3,7 +3,7 @@ package com.aubay.challenge.backend.entity;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ApiResponse {
+public class ExternalApiMovieResponse {
 
   private List<Movie> results;
 
