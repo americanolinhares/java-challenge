@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -99,7 +98,7 @@ public class UserServiceImpl {
     return movie;
   }
 
-  public User removeMovie(Long id, MovieRequest newMovie) throws ResourceNotFoundException {
+  public User removeMovie(Long id, String movieTitle) throws ResourceNotFoundException {
 
     User user;
     try {
@@ -109,7 +108,7 @@ public class UserServiceImpl {
     }
     Movie movie;
     try {
-      movie = movieRepository.findByOriginalTitle(newMovie.title()).get();
+      movie = movieRepository.findByOriginalTitle(movieTitle).get();
     } catch (Exception e) {
       throw new ResourceNotFoundException(MOVIE_NOT_FOUND);
     }
@@ -127,14 +126,12 @@ public class UserServiceImpl {
   public Set<Movie> listFavoriteMovies() throws ResourceNotFoundException {
 
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String username = "";
-    if (!(authentication instanceof AnonymousAuthenticationToken)) {
-      username = authentication.getName();
-    } else {
+    if (authentication == null) {
       throw new ResourceNotFoundException(USER_NOT_FOUND);
     }
+    UserDetailsImpl userDetailsImpl = (UserDetailsImpl) authentication.getPrincipal();
 
-    Optional<User> persistedUser = userRepository.findByUsername(username);
+    Optional<User> persistedUser = userRepository.findById(userDetailsImpl.getId());
     if (persistedUser.isPresent()) {
       return persistedUser.get().getFavoriteMovies();
     } else {

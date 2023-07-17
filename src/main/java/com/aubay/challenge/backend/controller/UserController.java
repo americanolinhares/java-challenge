@@ -1,6 +1,5 @@
 package com.aubay.challenge.backend.controller;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +28,11 @@ import com.aubay.challenge.backend.exception.ResourceNotFoundException;
 import com.aubay.challenge.backend.exception.UserAlreadyExistsException;
 import com.aubay.challenge.backend.service.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+@Tag(name = "Users",
+    description = "The aim of the API is to add and list users. Also, add and remove favorite movies to the users.")
 @RestController
 @RequestMapping("/users")
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -41,7 +43,7 @@ public class UserController {
 
   @GetMapping
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-  @Operation(summary = "List all users", tags = {"users"})
+  @Operation(summary = "List all users", tags = {"Users"})
   public ResponseEntity<List<User>> getAllUsers() {
     List<User> users = userServiceImpl.listAll();
     return ResponseEntity.ok(users);
@@ -70,19 +72,19 @@ public class UserController {
 
   @PostMapping
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-  @Operation(summary = "Create an user", tags = {"users"})
+  @Operation(summary = "Create an user", tags = {"Users"})
   public ResponseEntity<UserDTO> create(@Valid @RequestBody UserRequest userRequest, UriComponentsBuilder uriBuilder)
       throws UserAlreadyExistsException {
 
     User newUser = userServiceImpl.create(new User(userRequest.getUsername(), userRequest.getPassword()));
-    URI uri = uriBuilder.path("/users/{id}").buildAndExpand(newUser.getId()).toUri();
+    // URI uri = uriBuilder.path("/users/{id}").buildAndExpand(newUser.getId()).toUri();
 
-    return ResponseEntity.created(uri).body(new UserDTO(newUser));
+    return ResponseEntity.status(HttpStatus.CREATED).body(new UserDTO(newUser));
   }
 
   @PutMapping("/{id}/roles")
   @PreAuthorize("hasRole('ADMIN')")
-  @Operation(summary = "Add a role to an user", tags = {"users"})
+  @Operation(summary = "Add a role to an user", tags = {"Users"})
   public ResponseEntity<UserDTO> addRole(@PathVariable Long id, @Valid @RequestBody RoleRequest role)
       throws ResourceNotFoundException {
 
@@ -92,7 +94,7 @@ public class UserController {
 
   @PatchMapping("/{id}/movies")
   @PreAuthorize("hasRole('ADMIN')")
-  @Operation(summary = "Add a movie to the favorite movies list of an user", tags = {"users"})
+  @Operation(summary = "Add a movie to the favorite movies list of an user", tags = {"Users"})
   public ResponseEntity<MovieDTO> addMovie(@PathVariable Long id, @Valid @RequestBody MovieRequest movieRequest)
       throws ResourceNotFoundException {
 
@@ -100,19 +102,19 @@ public class UserController {
     return ResponseEntity.accepted().body(new MovieDTO(movie));
   }
 
-  @DeleteMapping("/{id}/movies")
+  @DeleteMapping("/{idUser}/movies/{movieTitle}")
   @PreAuthorize("hasRole('ADMIN')")
-  @Operation(summary = "Remove a movie from the favorite movies list of an user", tags = {"users"})
-  public ResponseEntity removeMovie(@PathVariable Long id, @Valid @RequestBody MovieRequest movie)
+  @Operation(summary = "Remove a movie from the favorite movies list of an user", tags = {"Users"})
+  public ResponseEntity removeMovie(@PathVariable Long idUser, @PathVariable String movieTitle)
       throws ResourceNotFoundException {
 
-    userServiceImpl.removeMovie(id, movie);
+    userServiceImpl.removeMovie(idUser, movieTitle);
     return ResponseEntity.noContent().build();
   }
 
   @GetMapping("/favorite-movies")
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-  @Operation(summary = "List favorite movies of an user", tags = {"users"})
+  @Operation(summary = "List favorite movies of an user", tags = {"Users"})
   public ResponseEntity<Set<Movie>> favoriteMovies() throws ResourceNotFoundException {
 
     return new ResponseEntity<Set<Movie>>(userServiceImpl.listFavoriteMovies(), HttpStatus.ACCEPTED);
