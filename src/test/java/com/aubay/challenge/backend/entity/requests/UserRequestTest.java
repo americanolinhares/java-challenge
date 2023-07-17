@@ -3,13 +3,13 @@ package com.aubay.challenge.backend.entity.requests;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class AuthRequestTest {
+class UserRequestTest {
 
   @Test
   void setUsername_ValidUsername_Success() {
 
     // Arrange
-    AuthRequest authRequest = new AuthRequest();
+    UserRequest authRequest = new UserRequest();
     String username = "john.doe";
 
     // Act
@@ -23,7 +23,7 @@ class AuthRequestTest {
   void setPassword_ValidPassword_Success() {
 
     // Arrange
-    AuthRequest authRequest = new AuthRequest();
+    UserRequest authRequest = new UserRequest();
     String password = "pass123";
 
     // Act

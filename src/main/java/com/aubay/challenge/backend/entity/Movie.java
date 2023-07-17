@@ -39,6 +39,19 @@ public class Movie {
     this.starNumber = 0;
   }
 
+  public Movie(String originalTitle, int starNumber) {
+    super();
+    this.originalTitle = originalTitle;
+    this.starNumber = starNumber;
+  }
+
+  public Movie(Long id, String originalTitle, int starNumber) {
+    super();
+    this.id = id;
+    this.originalTitle = originalTitle;
+    this.starNumber = starNumber;
+  }
+
   public Long getId() {
     return id;
   }

@@ -2,7 +2,7 @@ package com.aubay.challenge.backend.entity.requests;
 
 import jakarta.validation.constraints.NotEmpty;
 
-public class AuthRequest {
+public class UserRequest {
 
   @NotEmpty(message = "The username is required.")
   private String username;

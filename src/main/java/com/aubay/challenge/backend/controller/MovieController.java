@@ -22,17 +22,18 @@ public class MovieController {
   @Autowired
   MovieService movieService;
 
-  @GetMapping("")
+  @GetMapping("/populate")
   @PreAuthorize("hasRole('ADMIN')")
-  @Operation(summary = "List all Movies", tags = {"movies"})
+  @Operation(summary = "Populate Movies Database", tags = {"movies"})
   public ResponseEntity<List<Movie>> populateMovies() throws URISyntaxException, IOException {
 
     List<Movie> movies = movieService.populateDatabase();
     return ResponseEntity.ok(movies);
   }
 
-  @GetMapping("/list")
-  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+  @Operation(summary = "List all Movies", tags = {"movies"})
   public ResponseEntity<List<Movie>> getAllMovies() {
 
     return ResponseEntity.ok(movieService.list());
@@ -40,6 +41,7 @@ public class MovieController {
 
   @GetMapping("/top")
   @PreAuthorize("hasRole('ADMIN')")
+  @Operation(summary = "List top 10 favorite movies", tags = {"movies"})
   public ResponseEntity<List<Movie>> getTopFavoriteMovies() {
 
     return ResponseEntity.ok(movieService.topTen());

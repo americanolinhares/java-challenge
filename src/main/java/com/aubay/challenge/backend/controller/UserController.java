@@ -24,9 +24,11 @@ import com.aubay.challenge.backend.entity.User;
 import com.aubay.challenge.backend.entity.UserDTO;
 import com.aubay.challenge.backend.entity.requests.MovieRequest;
 import com.aubay.challenge.backend.entity.requests.RoleRequest;
+import com.aubay.challenge.backend.entity.requests.UserRequest;
 import com.aubay.challenge.backend.exception.ResourceNotFoundException;
 import com.aubay.challenge.backend.exception.UserAlreadyExistsException;
 import com.aubay.challenge.backend.service.UserServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
 @RestController
@@ -39,6 +41,7 @@ public class UserController {
 
   @GetMapping
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+  @Operation(summary = "List all users", tags = {"users"})
   public ResponseEntity<List<User>> getAllUsers() {
     List<User> users = userServiceImpl.listAll();
     return ResponseEntity.ok(users);
@@ -67,10 +70,11 @@ public class UserController {
 
   @PostMapping
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-  public ResponseEntity<UserDTO> create(@Valid @RequestBody User user, UriComponentsBuilder uriBuilder)
+  @Operation(summary = "Create an user", tags = {"users"})
+  public ResponseEntity<UserDTO> create(@Valid @RequestBody UserRequest userRequest, UriComponentsBuilder uriBuilder)
       throws UserAlreadyExistsException {
 
-    User newUser = userServiceImpl.create(user);
+    User newUser = userServiceImpl.create(new User(userRequest.getUsername(), userRequest.getPassword()));
     URI uri = uriBuilder.path("/users/{id}").buildAndExpand(newUser.getId()).toUri();
 
     return ResponseEntity.created(uri).body(new UserDTO(newUser));
@@ -78,6 +82,7 @@ public class UserController {
 
   @PutMapping("/{id}/roles")
   @PreAuthorize("hasRole('ADMIN')")
+  @Operation(summary = "Add a role to an user", tags = {"users"})
   public ResponseEntity<UserDTO> addRole(@PathVariable Long id, @Valid @RequestBody RoleRequest role)
       throws ResourceNotFoundException {
 
@@ -87,6 +92,7 @@ public class UserController {
 
   @PatchMapping("/{id}/movies")
   @PreAuthorize("hasRole('ADMIN')")
+  @Operation(summary = "Add a movie to the favorite movies list of an user", tags = {"users"})
   public ResponseEntity<MovieDTO> addMovie(@PathVariable Long id, @Valid @RequestBody MovieRequest movieRequest)
       throws ResourceNotFoundException {
 
@@ -96,6 +102,7 @@ public class UserController {
 
   @DeleteMapping("/{id}/movies")
   @PreAuthorize("hasRole('ADMIN')")
+  @Operation(summary = "Remove a movie from the favorite movies list of an user", tags = {"users"})
   public ResponseEntity removeMovie(@PathVariable Long id, @Valid @RequestBody MovieRequest movie)
       throws ResourceNotFoundException {
 
@@ -105,6 +112,7 @@ public class UserController {
 
   @GetMapping("/favorite-movies")
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+  @Operation(summary = "List favorite movies of an user", tags = {"users"})
   public ResponseEntity<Set<Movie>> favoriteMovies() throws ResourceNotFoundException {
 
     return new ResponseEntity<Set<Movie>>(userServiceImpl.listFavoriteMovies(), HttpStatus.ACCEPTED);

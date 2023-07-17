@@ -59,6 +59,12 @@ public class User {
     this.roles = roles;
   }
 
+  public User(String username, String password) {
+    super();
+    this.username = username;
+    this.password = password;
+  }
+
   public void addRole(Role role) {
     this.roles.add(role);
   }

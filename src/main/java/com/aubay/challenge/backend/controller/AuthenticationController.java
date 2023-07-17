@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.aubay.challenge.backend.entity.JwtResponse;
-import com.aubay.challenge.backend.entity.requests.AuthRequest;
+import com.aubay.challenge.backend.entity.requests.UserRequest;
 import com.aubay.challenge.backend.security.JwtUtils;
 import com.aubay.challenge.backend.service.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
 @RestController
@@ -27,7 +28,8 @@ public class AuthenticationController {
   JwtUtils jwtUtils;
 
   @PostMapping
-  public ResponseEntity<JwtResponse> login(@RequestBody @Valid AuthRequest request) {
+  @Operation(summary = "Generate the auth token of an existing user", tags = {"authentication"})
+  public ResponseEntity<JwtResponse> login(@RequestBody @Valid UserRequest request) {
 
     Authentication authentication = authenticationManager
         .authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));

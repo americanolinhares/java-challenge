@@ -15,16 +15,20 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import jakarta.validation.ConstraintViolationException;
 
+@RestControllerAdvice
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   private static final String MESSAGE = "message";
 
   @Override
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
       HttpStatusCode status, WebRequest request) {
     Map<String, List<String>> body = new HashMap<>();
@@ -37,6 +41,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
   }
 
+  @ResponseStatus(HttpStatus.NOT_FOUND)
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<?> resourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
     Map<String, String> body = new HashMap<>();
@@ -46,6 +51,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
   }
 
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(UserAlreadyExistsException.class)
   public ResponseEntity<?> userAlreadyExistsException(UserAlreadyExistsException ex, WebRequest request) {
     Map<String, String> body = new HashMap<>();
@@ -55,6 +61,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
   }
 
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<?> constraintViolationException(ConstraintViolationException ex, WebRequest request) {
     List<String> errors = new ArrayList<>();
@@ -67,6 +74,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
   }
 
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(BadCredentialsException.class)
   public ResponseEntity<?> badCredentialsException(BadCredentialsException ex, WebRequest request) {
     Map<String, String> body = new HashMap<>();
@@ -76,6 +84,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
   }
 
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<?> accessDeniedExceptionn(AccessDeniedException ex, WebRequest request) {
     Map<String, String> body = new HashMap<>();
