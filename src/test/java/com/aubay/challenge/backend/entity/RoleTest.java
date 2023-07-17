@@ -42,6 +42,12 @@ class RoleTest {
   }
 
   @Test
+  void testNotEqualsHashCode() {
+    Role other = new Role(1L, "User");
+    Assertions.assertNotEquals(role.hashCode(), other.hashCode());
+  }
+
+  @Test
   void testEquals() {
     Role other = new Role(1L, "Admin");
     Assertions.assertEquals(role, other);

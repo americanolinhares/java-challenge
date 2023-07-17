@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.aubay.challenge.backend.entity.Movie;
@@ -24,8 +25,8 @@ public class MovieController {
   @Autowired
   MovieService movieService;
 
-  @GetMapping("/populate")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PostMapping("/populate")
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "Populate Movies Database", tags = {"Movies"})
   public ResponseEntity<List<Movie>> populateMovies() throws URISyntaxException, IOException {
 
@@ -42,7 +43,7 @@ public class MovieController {
   }
 
   @GetMapping("/top")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "List top 10 favorite movies", tags = {"Movies"})
   public ResponseEntity<List<Movie>> getTopFavoriteMovies() {
 

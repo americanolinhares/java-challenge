@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.aubay.challenge.backend.entity.Role;
 import com.aubay.challenge.backend.entity.User;
 import com.aubay.challenge.backend.entity.requests.RoleRequest;
+import com.aubay.challenge.backend.exception.ResourceNotFoundException;
 import com.aubay.challenge.backend.exception.UserAlreadyExistsException;
 import com.aubay.challenge.backend.repository.RoleRepository;
 import com.aubay.challenge.backend.repository.UserRepository;
@@ -82,7 +83,7 @@ class UserServiceImplTest {
   }
 
   @Test
-  void testRegisterDefaultUser() throws UserAlreadyExistsException {
+  void testRegisterDefaultUser() throws UserAlreadyExistsException, ResourceNotFoundException {
     // Prepare test data
     User user = new User();
     user.setPassword("password");

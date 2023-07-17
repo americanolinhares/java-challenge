@@ -74,10 +74,9 @@ public class UserController {
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "Create an user", tags = {"Users"})
   public ResponseEntity<UserDTO> create(@Valid @RequestBody UserRequest userRequest, UriComponentsBuilder uriBuilder)
-      throws UserAlreadyExistsException {
+      throws UserAlreadyExistsException, ResourceNotFoundException {
 
     User newUser = userServiceImpl.create(new User(userRequest.getUsername(), userRequest.getPassword()));
-    // URI uri = uriBuilder.path("/users/{id}").buildAndExpand(newUser.getId()).toUri();
 
     return ResponseEntity.status(HttpStatus.CREATED).body(new UserDTO(newUser));
   }
@@ -92,18 +91,18 @@ public class UserController {
     return ResponseEntity.ok(new UserDTO(user));
   }
 
-  @PatchMapping("/{id}/movies")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PatchMapping("/movies")
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "Add a movie to the favorite movies list of an user", tags = {"Users"})
-  public ResponseEntity<MovieDTO> addMovie(@PathVariable Long id, @Valid @RequestBody MovieRequest movieRequest)
+  public ResponseEntity<MovieDTO> addMovie(@Valid @RequestBody MovieRequest movieRequest)
       throws ResourceNotFoundException {
 
-    Movie movie = userServiceImpl.addMovie(id, movieRequest);
+    Movie movie = userServiceImpl.addMovie(movieRequest);
     return ResponseEntity.accepted().body(new MovieDTO(movie));
   }
 
   @DeleteMapping("/{idUser}/movies/{movieTitle}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "Remove a movie from the favorite movies list of an user", tags = {"Users"})
   public ResponseEntity removeMovie(@PathVariable Long idUser, @PathVariable String movieTitle)
       throws ResourceNotFoundException {

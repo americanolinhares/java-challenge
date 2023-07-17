@@ -24,6 +24,7 @@ import com.aubay.challenge.backend.repository.UserRepository;
 @Transactional
 public class UserServiceImpl {
 
+  private static final String ROLE_NOT_FOUND = "Role not found";
   private static final String MOVIE_NOT_FOUND = "Movie not found";
   private static final String USER_NOT_FOUND = "User not found";
 
@@ -44,74 +45,41 @@ public class UserServiceImpl {
     return userRepository.findAll();
   }
 
-  public User create(User user) throws UserAlreadyExistsException {
+  public User create(User user) throws UserAlreadyExistsException, ResourceNotFoundException {
 
     if (userRepository.existsByUsername(user.getUsername())) {
       throw new UserAlreadyExistsException("User already exists for this username");
     }
-
     user.setPassword(bcryptEncoder.encode(user.getPassword()));
-    Role role = roleRepository.findByName("ROLE_USER").orElseThrow(() -> new RuntimeException("Role not found"));
+    Role role = extractRole("ROLE_USER");
     user.addRole(role);
-
     return userRepository.save(user);
   }
 
   public User addRole(Long id, RoleRequest newRole) throws ResourceNotFoundException {
-    User user;
-    try {
-      user = userRepository.findById(id).get();
-    } catch (Exception e) {
-      throw new ResourceNotFoundException(USER_NOT_FOUND);
-    }
 
-    Role role;
-    try {
-      role = roleRepository.findByName(newRole.name()).get();
-    } catch (Exception e) {
-      throw new ResourceNotFoundException("Role not found");
-    }
-
+    User user = extractUser(id);
+    Role role = extractRole(newRole.name());
     user.addRole(role);
     return userRepository.save(user);
   }
 
-  public Movie addMovie(Long id, MovieRequest newMovie) throws ResourceNotFoundException {
+  public Movie addMovie(MovieRequest newMovie) throws ResourceNotFoundException {
 
-    User user;
-    try {
-      user = userRepository.findById(id).get();
-    } catch (Exception e) {
-      throw new ResourceNotFoundException(USER_NOT_FOUND);
-    }
+    UserDetailsImpl userDetails = extractUserPrincipal();
+    User user = extractUser(userDetails.getId());
+    Movie movie = extractMovie(newMovie.title());
 
-    Movie movie;
-    try {
-      movie = movieRepository.findByOriginalTitle(newMovie.title()).get();
-    } catch (Exception e) {
-      throw new ResourceNotFoundException(MOVIE_NOT_FOUND);
-    }
     movie.addStarNumber();
     user.addMovie(movie);
     userRepository.save(user);
-
     return movie;
   }
 
   public User removeMovie(Long id, String movieTitle) throws ResourceNotFoundException {
 
-    User user;
-    try {
-      user = userRepository.findById(id).get();
-    } catch (Exception e) {
-      throw new ResourceNotFoundException(USER_NOT_FOUND);
-    }
-    Movie movie;
-    try {
-      movie = movieRepository.findByOriginalTitle(movieTitle).get();
-    } catch (Exception e) {
-      throw new ResourceNotFoundException(MOVIE_NOT_FOUND);
-    }
+    User user = extractUser(id);
+    Movie movie = extractMovie(movieTitle);
 
     if (!user.getFavoriteMovies().contains(movie)) {
       throw new ResourceNotFoundException("That movie does not belong to the user's favorite list.");
@@ -119,24 +87,45 @@ public class UserServiceImpl {
 
     movie.subtractStarNumber();
     user.removeMovie(movie);
-
     return userRepository.save(user);
   }
 
+
   public Set<Movie> listFavoriteMovies() throws ResourceNotFoundException {
 
+    return extractUser(extractUserPrincipal().getId()).getFavoriteMovies();
+  }
+
+  private UserDetailsImpl extractUserPrincipal() throws ResourceNotFoundException {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null) {
       throw new ResourceNotFoundException(USER_NOT_FOUND);
     }
-    UserDetailsImpl userDetailsImpl = (UserDetailsImpl) authentication.getPrincipal();
-
-    Optional<User> persistedUser = userRepository.findById(userDetailsImpl.getId());
-    if (persistedUser.isPresent()) {
-      return persistedUser.get().getFavoriteMovies();
-    } else {
-      throw new ResourceNotFoundException(USER_NOT_FOUND);
-    }
+    return (UserDetailsImpl) authentication.getPrincipal();
   }
 
+  private User extractUser(Long id) throws ResourceNotFoundException {
+    Optional<User> optionalUser = userRepository.findById(id);
+    if (optionalUser.isEmpty()) {
+      throw new ResourceNotFoundException(USER_NOT_FOUND);
+    }
+    return optionalUser.get();
+  }
+
+  private Movie extractMovie(String movieTitle) throws ResourceNotFoundException {
+    Optional<Movie> optionalMovie = movieRepository.findByOriginalTitle(movieTitle);
+    if (optionalMovie.isEmpty()) {
+      throw new ResourceNotFoundException(MOVIE_NOT_FOUND);
+    }
+    return optionalMovie.get();
+  }
+
+  private Role extractRole(String roleName) throws ResourceNotFoundException {
+
+    Optional<Role> optionalRole = roleRepository.findByName(roleName);
+    if (!optionalRole.isPresent()) {
+      throw new ResourceNotFoundException(ROLE_NOT_FOUND);
+    }
+    return optionalRole.get();
+  }
 }
