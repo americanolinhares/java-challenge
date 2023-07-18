@@ -8,15 +8,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.aubay.challenge.backend.entity.Movie;
 import com.aubay.challenge.backend.service.MovieService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "Movies", description = "The aim of the API is to populate and list movies.")
+@Tag(name = "movies", description = "Operations about movies")
 @RestController
 @RequestMapping("/movies")
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -25,9 +26,10 @@ public class MovieController {
   @Autowired
   MovieService movieService;
 
-  @PostMapping("/populate")
+  @PutMapping
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-  @Operation(summary = "Populate Movies Database", tags = {"Movies"})
+  @Operation(summary = "Populate Movies Database", tags = {"movies"})
+  @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<List<Movie>> populateMovies() throws URISyntaxException, IOException {
 
     List<Movie> movies = movieService.populateDatabase();
@@ -36,7 +38,8 @@ public class MovieController {
 
   @GetMapping
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-  @Operation(summary = "List all Movies", tags = {"Movies"})
+  @Operation(summary = "List all Movies", tags = {"movies"})
+  @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<List<Movie>> getAllMovies() {
 
     return ResponseEntity.ok(movieService.list());
@@ -44,7 +47,8 @@ public class MovieController {
 
   @GetMapping("/top")
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-  @Operation(summary = "List top 10 favorite movies", tags = {"Movies"})
+  @Operation(summary = "List top 10 movies", tags = {"movies"})
+  @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<List<Movie>> getTopFavoriteMovies() {
 
     return ResponseEntity.ok(movieService.topTen());

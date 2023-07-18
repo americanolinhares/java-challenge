@@ -15,8 +15,10 @@ import com.aubay.challenge.backend.entity.requests.UserRequest;
 import com.aubay.challenge.backend.security.JwtUtils;
 import com.aubay.challenge.backend.service.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+@Tag(name = "authentication", description = "Generate the authentication token")
 @RestController
 @RequestMapping("/login")
 public class AuthenticationController {

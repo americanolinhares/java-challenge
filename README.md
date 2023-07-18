@@ -59,12 +59,12 @@ This is a simple project with a challenge for Backend developers.
 
 - [X] Create an endpoint to consume an API from IMDB (https://imdb-api.com/) and populate your database (you can use WebClient or Feign to consume the API). This API could be called just by the ADMIN user, see @Secured and Roles in Spring Security.
 - [X] Create an endpoint to list all the movies.
-- [ ] Create an endpoint to include a movie to the user (favorite list) - Fixing
-- [ ] Create an endpoint to exclude the movie from the favorite list - Fixing
+- [X] Create an endpoint to include a movie to the user (favorite list)
+- [X] Create an endpoint to exclude the movie from the favorite list
 - [X] Each time the user includes the movie in the favorite list add one "star" to the movie
 - [X] Create an endpoint to list the top 10 movies, the movies with more stars.
 - [X] Create an endpoint to list the favorite movies per user.
-- [ ] Don't forget to include Swagger/OpenAPI, and the test. - In progress
+- [ ] Don't forget to include Swagger/OpenAPI, and the test. - Swagger done and test in progress
 
 #### Content to help:
 
