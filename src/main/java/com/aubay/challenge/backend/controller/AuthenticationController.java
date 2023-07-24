@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,11 +39,13 @@ public class AuthenticationController {
 
     String jwt = jwtUtils.generateJwtToken(authentication);
 
-    UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+    Object obj = authentication.getPrincipal();
+    UserDetails userDetails = (UserDetailsImpl) obj;
 
     List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).toList();
 
-    return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), roles));
+    return ResponseEntity
+        .ok(new JwtResponse(jwt, ((UserDetailsImpl) userDetails).getId(), userDetails.getUsername(), roles));
   }
 }
 

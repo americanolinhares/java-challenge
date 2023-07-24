@@ -1,5 +1,7 @@
 package com.aubay.challenge.backend.entity;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +22,7 @@ class RoleTest {
 
   @Test
   void testGetName() {
-    Assertions.assertEquals("Admin", role.getName());
+    assertEquals("Admin", role.getName());
   }
 
   @Test
@@ -32,39 +34,39 @@ class RoleTest {
   @Test
   void testSetName() {
     role.setName("User");
-    Assertions.assertEquals("User", role.getName());
+    assertEquals("User", role.getName());
   }
 
   @Test
   void testHashCode() {
     Role other = new Role(1L, "Admin");
-    Assertions.assertEquals(role.hashCode(), other.hashCode());
+    assertEquals(role.hashCode(), other.hashCode());
   }
 
   @Test
   void testNotEqualsHashCode() {
     Role other = new Role(1L, "User");
-    Assertions.assertNotEquals(role.hashCode(), other.hashCode());
+    assertNotEquals(role.hashCode(), other.hashCode());
   }
 
   @Test
   void testEquals() {
     Role other = new Role(1L, "Admin");
-    Assertions.assertEquals(role, other);
+    assertEquals(role, other);
   }
 
   @Test
   void testEqualsSameInstance() {
-    Assertions.assertEquals(role, role);
+    assertEquals(role, role);
   }
 
   @Test
   void testEqualsDifferentClass() {
-    Assertions.assertNotEquals(role, "Admin");
+    assertNotEquals(role, "Admin");
   }
 
   @Test
   void testEqualsNull() {
-    Assertions.assertNotEquals(role, null);
+    assertNotEquals(role, null);
   }
 }

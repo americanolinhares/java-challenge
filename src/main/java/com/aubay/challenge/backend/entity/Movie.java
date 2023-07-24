@@ -1,5 +1,6 @@
 package com.aubay.challenge.backend.entity;
 
+import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -87,6 +88,23 @@ public class Movie {
   @Override
   public String toString() {
     return "Movie [id=" + id + ", originalTitle=" + originalTitle + ", starNumber=" + starNumber + "]";
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(originalTitle);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Movie other = (Movie) obj;
+    return Objects.equals(originalTitle, other.getOriginalTitle());
   }
 
 

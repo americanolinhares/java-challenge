@@ -40,28 +40,27 @@ class UserServiceImplTest {
   }
 
   @Test
-  void testListAll() {
-    // Prepare test data
+  void listAll_RetunsSuccess() {
+    // Given
     List<User> userList = new ArrayList<>();
     User user1 = new User();
     User user2 = new User();
     userList.add(user1);
     userList.add(user2);
 
-    // Mock the repository behavior
     when(userRepository.findAll()).thenReturn(userList);
 
-    // Call the service method
+    // When
     List<User> result = userService.listAll();
 
-    // Verify the result
+    // Then
     Assertions.assertEquals(2, result.size());
     Assertions.assertEquals(userList, result);
   }
 
   @Test
-  void testEdit() {
-    // Prepare test data
+  void addRole_ReturnsCorrectly() throws ResourceNotFoundException {
+    // Given
     Long userId = 1L;
     RoleRequest newRole = new RoleRequest("ROLE_ADMIN");
 
@@ -69,37 +68,35 @@ class UserServiceImplTest {
     Role role = new Role(1L, "ROLE_ADMIN");
     user.addRole(role);
 
-    // Mock the repository behavior
     when(userRepository.findById(userId)).thenReturn(Optional.of(user));
     when(roleRepository.findByName(newRole.name())).thenReturn(Optional.of(role));
     when(userRepository.save(user)).thenReturn(user);
 
-    // Call the service method
-    // User result = userService.edit(userId, newRole);
+    // When
+    User result = userService.addRole(userId, newRole);
 
-    // Verify the result
-    // Assertions.assertEquals(user, result);
-    // Assertions.assertTrue(user.getRoles().contains(role));
+    // Then
+    Assertions.assertEquals(user, result);
+    Assertions.assertTrue(user.getRoles().contains(role));
   }
 
   @Test
-  void testRegisterDefaultUser() throws UserAlreadyExistsException, ResourceNotFoundException {
-    // Prepare test data
+  void createUser_ReturnsCorrectly() throws UserAlreadyExistsException, ResourceNotFoundException {
+    // Given
     User user = new User();
-    user.setPassword("password");
+    user.setPassword("12345678");
 
     Role role = new Role(1L, "ROLE_USER");
 
-    // Mock the repository behavior
     when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(role));
     when(userRepository.save(user)).thenReturn(user);
 
-    // Call the service method
+    // When
     User result = userService.create(user);
 
-    // Verify the result
+    // Then
     Assertions.assertEquals(user, result);
     Assertions.assertTrue(user.getRoles().contains(role));
-    verify(passwordEncoder).encode("password");
+    verify(passwordEncoder).encode("12345678");
   }
 }

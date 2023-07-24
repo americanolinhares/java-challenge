@@ -1,10 +1,12 @@
-package com.aubay.challenge.backend;
+package com.aubay.challenge.backend.repository;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,37 +27,46 @@ public class MovieRepositoryIntegrationTest {
   private MovieRepository MovieRepository;
 
   @Test
-  public void whenFindByOriginalTitle_thenReturnMovie() {
+  public void whenFindByOriginalTitle_thenReturnsMovie() {
+    // Given
     Movie titanic = new Movie("Titanic");
     entityManager.persistAndFlush(titanic);
 
+    // When
     Movie found = MovieRepository.findByOriginalTitle(titanic.getOriginalTitle()).orElse(null);
+
+    // Then
     assertThat(found.getOriginalTitle()).isEqualTo(titanic.getOriginalTitle());
   }
 
   @Test
-  public void whenInvalidOriginalTitle_thenReturnEmpty() {
+  public void whenInvalidOriginalTitle_thenReturnsEmpty() {
     Optional<Movie> fromDb = MovieRepository.findByOriginalTitle("doesNotExist");
     assertTrue(fromDb.isEmpty());
   }
 
   @Test
-  public void whenFindById_thenReturnMovie() {
+  public void whenFindById_thenReturnsMovie() {
+    // Given
     Movie movie = new Movie("Matrix");
     entityManager.persistAndFlush(movie);
 
+    // When
     Movie fromDb = MovieRepository.findById(movie.getId()).orElse(null);
+
+    // Then
     assertThat(fromDb.getOriginalTitle()).isEqualTo(movie.getOriginalTitle());
   }
 
   @Test
-  public void whenInvalidId_thenReturnNull() {
+  public void whenInvalidId_thenReturnsNull() {
     Movie fromDb = MovieRepository.findById(-11l).orElse(null);
     assertThat(fromDb).isNull();
   }
 
   @Test
-  public void givenSetOfMovies_whenFindAll_thenReturnAllMovies() {
+  public void givenSetOfMovies_whenFindAll_thenReturnsAllMovies() {
+    // Given
     Movie matrix1 = new Movie("Matrix 1");
     Movie matrix2 = new Movie("Matrix 2");
     Movie matrix3 = new Movie("Matrix 3");
@@ -65,46 +76,28 @@ public class MovieRepositoryIntegrationTest {
     entityManager.persist(matrix3);
     entityManager.flush();
 
+    // When
     List<Movie> allMovies = MovieRepository.findAll();
 
+    // Then
     assertThat(allMovies).hasSize(3).extracting(Movie::getOriginalTitle).containsOnly(matrix1.getOriginalTitle(),
         matrix2.getOriginalTitle(), matrix3.getOriginalTitle());
   }
 
   @Test
-  public void givenSetOfMovies_whenFindfindTop10_thenReturnCorrectMovies() {
-    Movie matrix1 = new Movie("Matrix 1", 3);
-    Movie matrix2 = new Movie("Matrix 2", 4);
-    Movie matrix3 = new Movie("Matrix 3", 5);
-    Movie matrix4 = new Movie("Matrix 4", 6);
-    Movie matrix5 = new Movie("Matrix 5", 7);
-    Movie matrix6 = new Movie("Matrix 6", 8);
-    Movie matrix7 = new Movie("Matrix 7", 9);
-    Movie matrix8 = new Movie("Matrix 8", 10);
-    Movie matrix9 = new Movie("Matrix 9", 11);
-    Movie matrix10 = new Movie("Matrix 10", 12);
-    Movie matrix11 = new Movie("Matrix 11", 13);
-    Movie matrix12 = new Movie("Matrix 12", 14);
-
-    entityManager.persist(matrix1);
-    entityManager.persist(matrix2);
-    entityManager.persist(matrix3);
-    entityManager.persist(matrix4);
-    entityManager.persist(matrix5);
-    entityManager.persist(matrix6);
-    entityManager.persist(matrix7);
-    entityManager.persist(matrix8);
-    entityManager.persist(matrix9);
-    entityManager.persist(matrix10);
-    entityManager.persist(matrix11);
-    entityManager.persist(matrix12);
+  public void givenSetOfMovies_whenFindTop10_thenReturnsCorrectMovies() {
+    // Given
+    List<Movie> movies =
+        IntStream.rangeClosed(1, 12).mapToObj(i -> new Movie("Matrix " + i, i)).collect(Collectors.toList());
+    movies.forEach(entityManager::persist);
     entityManager.flush();
 
+    // When
     List<Movie> allMovies = MovieRepository.findTop10ByOrderByStarNumberDesc();
 
-    assertThat(allMovies).hasSize(10).extracting(Movie::getOriginalTitle).containsOnly(matrix3.getOriginalTitle(),
-        matrix4.getOriginalTitle(), matrix5.getOriginalTitle(), matrix6.getOriginalTitle(), matrix7.getOriginalTitle(),
-        matrix6.getOriginalTitle(), matrix7.getOriginalTitle(), matrix8.getOriginalTitle(), matrix9.getOriginalTitle(),
-        matrix10.getOriginalTitle(), matrix11.getOriginalTitle(), matrix12.getOriginalTitle());
+    // Then
+    List<String> topMovies = IntStream.rangeClosed(3, 12).mapToObj(i -> "Matrix " + i).collect(Collectors.toList());
+    assertThat(allMovies).hasSize(10).extracting(Movie::getOriginalTitle).containsAll(topMovies);
+    assertThat(allMovies).extracting(Movie::getOriginalTitle).doesNotContain("Matrix 1");
   }
 }

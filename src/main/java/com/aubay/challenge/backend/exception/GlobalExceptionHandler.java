@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,8 +32,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       HttpStatusCode status, WebRequest request) {
     Map<String, List<String>> body = new HashMap<>();
 
-    List<String> errors = ex.getBindingResult().getFieldErrors().stream()
-        .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
+    List<String> errors =
+        ex.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
 
     body.put(MESSAGE, errors);
 
@@ -43,54 +42,57 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ResponseStatus(HttpStatus.NOT_FOUND)
   @ExceptionHandler(ResourceNotFoundException.class)
-  public ResponseEntity<?> resourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+  public ResponseEntity<Map<String, String>> resourceNotFoundException(ResourceNotFoundException ex,
+      WebRequest request) {
     Map<String, String> body = new HashMap<>();
 
     body.put(MESSAGE, ex.getMessage());
 
-    return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
   }
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(UserAlreadyExistsException.class)
-  public ResponseEntity<?> userAlreadyExistsException(UserAlreadyExistsException ex, WebRequest request) {
+  public ResponseEntity<Map<String, String>> userAlreadyExistsException(UserAlreadyExistsException ex,
+      WebRequest request) {
     Map<String, String> body = new HashMap<>();
 
     body.put(MESSAGE, ex.getMessage());
 
-    return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    return ResponseEntity.badRequest().body(body);
   }
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<?> constraintViolationException(ConstraintViolationException ex, WebRequest request) {
+  public ResponseEntity<Map<String, List<String>>> constraintViolationException(ConstraintViolationException ex,
+      WebRequest request) {
     List<String> errors = new ArrayList<>();
 
     ex.getConstraintViolations().forEach(cv -> errors.add(cv.getMessage()));
 
-    Map<String, List<String>> result = new HashMap<>();
-    result.put(MESSAGE, errors);
+    Map<String, List<String>> body = new HashMap<>();
+    body.put(MESSAGE, errors);
 
-    return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+    return ResponseEntity.badRequest().body(body);
   }
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(BadCredentialsException.class)
-  public ResponseEntity<?> badCredentialsException(BadCredentialsException ex, WebRequest request) {
+  public ResponseEntity<Map<String, String>> badCredentialsException(BadCredentialsException ex, WebRequest request) {
     Map<String, String> body = new HashMap<>();
 
     body.put(MESSAGE, ex.getMessage());
 
-    return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    return ResponseEntity.badRequest().body(body);
   }
 
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   @ExceptionHandler(AccessDeniedException.class)
-  public ResponseEntity<?> accessDeniedExceptionn(AccessDeniedException ex, WebRequest request) {
+  public ResponseEntity<Map<String, String>> accessDeniedExceptionn(AccessDeniedException ex, WebRequest request) {
     Map<String, String> body = new HashMap<>();
 
     body.put(MESSAGE, ex.getMessage());
 
-    return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
   }
 }

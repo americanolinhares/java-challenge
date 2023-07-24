@@ -54,6 +54,7 @@ public class MovieService {
     movie.addStarNumber();
     user.addMovie(movie);
     userRepository.save(user);
+
     return movie;
   }
 
@@ -87,11 +88,11 @@ public class MovieService {
     return movieRepository.saveAll(movies);
   }
 
-  public List<Movie> list() {
+  public List<Movie> listMovies() {
     return movieRepository.findAll();
   }
 
-  public List<Movie> topTen() {
+  public List<Movie> listTopTenMovies() {
     return movieRepository.findTop10ByOrderByStarNumberDesc();
   }
 

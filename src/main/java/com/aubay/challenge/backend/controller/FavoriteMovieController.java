@@ -2,6 +2,7 @@ package com.aubay.challenge.backend.controller;
 
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -39,14 +40,14 @@ public class FavoriteMovieController {
       throws ResourceNotFoundException {
 
     Movie movie = movieService.addMovie(movieRequest);
-    return ResponseEntity.accepted().body(new MovieDTO(movie));
+    return ResponseEntity.status(HttpStatus.CREATED).body(new MovieDTO(movie));
   }
 
   @DeleteMapping("/{movieTitle}")
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "Remove a movie from the favorite movie list", tags = {"favorite-movies"})
   @SecurityRequirement(name = "Bearer Authentication")
-  public ResponseEntity removeMovie(@PathVariable String movieTitle) throws ResourceNotFoundException {
+  public ResponseEntity<Object> removeMovie(@PathVariable String movieTitle) throws ResourceNotFoundException {
 
     movieService.removeMovie(movieTitle);
     return ResponseEntity.noContent().build();

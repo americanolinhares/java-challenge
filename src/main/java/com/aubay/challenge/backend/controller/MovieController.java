@@ -42,7 +42,7 @@ public class MovieController {
   @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<List<Movie>> getAllMovies() {
 
-    return ResponseEntity.ok(movieService.list());
+    return ResponseEntity.ok(movieService.listMovies());
   }
 
   @GetMapping("/top")
@@ -51,7 +51,7 @@ public class MovieController {
   @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<List<Movie>> getTopFavoriteMovies() {
 
-    return ResponseEntity.ok(movieService.topTen());
+    return ResponseEntity.ok(movieService.listTopTenMovies());
   }
 }
 
