@@ -51,7 +51,7 @@ public class MovieController {
   @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<List<Movie>> getTopFavoriteMovies() {
 
-    return ResponseEntity.ok(movieService.listTopTenMovies());
+    return ResponseEntity.ok(movieService.listTopTenMoviesWithRateLimit());
   }
 }
 

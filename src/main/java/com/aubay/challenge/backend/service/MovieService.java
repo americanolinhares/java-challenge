@@ -3,11 +3,15 @@ package com.aubay.challenge.backend.service;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,10 +26,18 @@ import com.aubay.challenge.backend.exception.ResourceNotFoundException;
 import com.aubay.challenge.backend.repository.MovieRepository;
 import com.aubay.challenge.backend.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hazelcast.core.HazelcastInstance;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Transactional
+@Log4j2
 public class MovieService {
+
+  private static final Logger logger = LoggerFactory.getLogger(MovieService.class);
+
 
   @Autowired
   MovieRepository movieRepository;
@@ -36,6 +48,11 @@ public class MovieService {
   @Autowired
   ObjectMapper objectMapper;
 
+  @Autowired
+  private HazelcastInstance hazelcastInstance;
+
+  private List<Movie> topMoviesCache;
+
   @Value("${app.movieApiToken}")
   private String token;
 
@@ -44,6 +61,12 @@ public class MovieService {
 
   private static final String MOVIE_NOT_FOUND = "Movie not found";
   private static final String USER_NOT_FOUND = "User not found";
+
+
+  @PostConstruct
+  public void init() {
+    topMoviesCache = Collections.emptyList();
+  }
 
   public Movie addMovie(MovieRequest newMovie) throws ResourceNotFoundException {
 
@@ -78,6 +101,7 @@ public class MovieService {
     return extractUser(extractUserPrincipal().getId()).getFavoriteMovies();
   }
 
+
   public List<Movie> populateDatabase() throws IOException, URISyntaxException {
 
     String externalApiContent = WebClient.create().post().uri(new URI(movieApiUrl)).header("Authorization", token)
@@ -92,9 +116,35 @@ public class MovieService {
     return movieRepository.findAll();
   }
 
-  public List<Movie> listTopTenMovies() {
+  /*
+   * @Cacheable("movies") public List<Movie> listTopTenMovies() {
+   * 
+   * return movieRepository.findTop10ByOrderByStarNumberDesc(); }
+   */
+
+  @Cacheable("movies")
+  @RateLimiter(name = "topMoviesRateLimiter", fallbackMethod = "getTopMoviesFallback")
+  public List<Movie> listTopTenMoviesWithRateLimit() {
+
+    logger.warn(
+        "------------------------------------------------------listTopTenMoviesWithRateLimit()------------------------------------------------------------------------");
+
+
     return movieRepository.findTop10ByOrderByStarNumberDesc();
   }
+
+  public List<Movie> getTopMoviesFallback(Exception e) {
+
+    logger.warn(
+        "------------------------------------------------------getTopMoviesFallback()------------------------------------------------------------------------");
+    if (!topMoviesCache.isEmpty()) {
+      return topMoviesCache;
+    }
+
+    // Alternatively, you can return an empty list or any other fallback behavior
+    return Collections.emptyList();
+  }
+
 
   private UserDetailsImpl extractUserPrincipal() throws ResourceNotFoundException {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

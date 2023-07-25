@@ -130,7 +130,7 @@ class MovieServiceTest {
     when(movieRepository.findTop10ByOrderByStarNumberDesc()).thenReturn(movies);
 
     // When
-    List<Movie> result = movieService.listTopTenMovies();
+    List<Movie> result = movieService.listTopTenMoviesWithRateLimit();
 
     // Then
     assertEquals(movies, result);

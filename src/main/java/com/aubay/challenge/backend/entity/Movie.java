@@ -1,5 +1,6 @@
 package com.aubay.challenge.backend.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
@@ -11,7 +12,10 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "movies")
-public class Movie {
+public class Movie implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @JsonProperty("id")

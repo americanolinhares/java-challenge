@@ -1,0 +1,6 @@
+ratelimiter:
+    instances:
+      basic:
+        limitForPeriod: 2
+        limitRefreshPeriod: 1s
+        timeoutDuration: 1s
