@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/movies")
 @CrossOrigin(origins = "*", maxAge = 3600)
+@SecurityRequirement(name = "Bearer Authentication")
 public class MovieController {
 
   @Autowired
@@ -29,7 +30,6 @@ public class MovieController {
   @PutMapping
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "Populate Movies Database", tags = {"movies"})
-  @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<List<Movie>> populateMovies() throws URISyntaxException, IOException {
 
     List<Movie> movies = movieService.populateDatabase();
@@ -39,7 +39,6 @@ public class MovieController {
   @GetMapping
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "List all Movies", tags = {"movies"})
-  @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<List<Movie>> getAllMovies() {
 
     return ResponseEntity.ok(movieService.listMovies());
@@ -48,7 +47,6 @@ public class MovieController {
   @GetMapping("/top")
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "List top 10 movies", tags = {"movies"})
-  @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<List<Movie>> getTopFavoriteMovies() {
 
     return ResponseEntity.ok(movieService.listTopTenMoviesWithRateLimit());

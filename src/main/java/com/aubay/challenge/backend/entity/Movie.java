@@ -82,11 +82,11 @@ public class Movie implements Serializable {
   }
 
   public void addStarNumber() {
-    ++this.starNumber;
+    this.starNumber += 1;
   }
 
   public void subtractStarNumber() {
-    --this.starNumber;
+    this.starNumber -= 1;
   }
 
   @Override
@@ -110,7 +110,5 @@ public class Movie implements Serializable {
     Movie other = (Movie) obj;
     return Objects.equals(originalTitle, other.getOriginalTitle());
   }
-
-
 
 }

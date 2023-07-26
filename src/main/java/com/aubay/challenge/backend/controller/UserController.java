@@ -29,6 +29,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/users")
 @CrossOrigin(origins = "*", maxAge = 3600)
+@SecurityRequirement(name = "Bearer Authentication")
 public class UserController {
 
   @Autowired
@@ -37,8 +38,8 @@ public class UserController {
   @GetMapping
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "List all users", tags = {"users"})
-  @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<List<User>> getAllUsers() {
+
     List<User> users = userServiceImpl.listAll();
     return ResponseEntity.ok(users);
   }
@@ -46,19 +47,16 @@ public class UserController {
   @PutMapping
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "Create an user", tags = {"users"})
-  @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<UserDTO> create(@Valid @RequestBody UserRequest userRequest, UriComponentsBuilder uriBuilder)
       throws UserAlreadyExistsException, ResourceNotFoundException {
 
     User newUser = userServiceImpl.create(new User(userRequest.getUsername(), userRequest.getPassword()));
-
     return ResponseEntity.status(HttpStatus.CREATED).body(new UserDTO(newUser));
   }
 
   @PutMapping("/{id}/roles")
   @PreAuthorize("hasRole('ADMIN')")
   @Operation(summary = "Add a role to an user", tags = {"users"})
-  @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<UserDTO> addRole(@PathVariable Long id, @Valid @RequestBody RoleRequest role)
       throws ResourceNotFoundException {
 

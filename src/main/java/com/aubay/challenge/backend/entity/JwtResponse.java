@@ -6,6 +6,7 @@ public record JwtResponse(String accessToken, String tokenType, Long id, String 
     List<String> roles) {
 
   public JwtResponse(String accessToken, Long id, String username, List<String> roles) {
+
     this(accessToken, "Bearer", id, username, roles);
   }
 }

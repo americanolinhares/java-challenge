@@ -32,6 +32,7 @@ public class UserServiceImpl {
 
   // TODO REMOVE
   public List<User> listAll() {
+
     return userRepository.findAll();
   }
 
@@ -41,20 +42,21 @@ public class UserServiceImpl {
       throw new UserAlreadyExistsException("User already exists for this username");
     }
     user.setPassword(bcryptEncoder.encode(user.getPassword()));
-    Role role = extractRole("ROLE_USER");
+    Role role = findRole("ROLE_USER");
     user.addRole(role);
     return userRepository.save(user);
   }
 
   public User addRole(Long id, RoleRequest newRole) throws ResourceNotFoundException {
 
-    User user = extractUser(id);
-    Role role = extractRole(newRole.name());
+    User user = findUser(id);
+    Role role = findRole(newRole.name());
     user.addRole(role);
     return userRepository.save(user);
   }
 
-  private User extractUser(Long id) throws ResourceNotFoundException {
+  private User findUser(Long id) throws ResourceNotFoundException {
+
     Optional<User> optionalUser = userRepository.findById(id);
     if (optionalUser.isEmpty()) {
       throw new ResourceNotFoundException(USER_NOT_FOUND);
@@ -62,7 +64,7 @@ public class UserServiceImpl {
     return optionalUser.get();
   }
 
-  private Role extractRole(String roleName) throws ResourceNotFoundException {
+  private Role findRole(String roleName) throws ResourceNotFoundException {
 
     Optional<Role> optionalRole = roleRepository.findByName(roleName);
     if (!optionalRole.isPresent()) {

@@ -68,7 +68,7 @@ class FavoriteMovieControllerIntegrationTest {
     MovieRequest movieRequest = new MovieRequest("Elemental");
     Movie elemental = new Movie("Elemental");
 
-    when(movieService.addMovie(movieRequest)).thenReturn(elemental);
+    when(movieService.addFavoriteMovie(movieRequest)).thenReturn(elemental);
     mockMvc.perform(
         put("/favorite-movies").contentType("application/json").content(objectMapper.writeValueAsString(movieRequest)))
         .andExpect(status().isCreated());

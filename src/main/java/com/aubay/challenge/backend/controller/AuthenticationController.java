@@ -48,5 +48,3 @@ public class AuthenticationController {
         .ok(new JwtResponse(jwt, ((UserDetailsImpl) userDetails).getId(), userDetails.getUsername(), roles));
   }
 }
-
-

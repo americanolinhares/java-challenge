@@ -27,6 +27,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/favorite-movies")
 @CrossOrigin(origins = "*", maxAge = 3600)
+@SecurityRequirement(name = "Bearer Authentication")
 public class FavoriteMovieController {
 
   @Autowired
@@ -35,28 +36,24 @@ public class FavoriteMovieController {
   @PutMapping
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "Add a movie to the favorite movie list", tags = {"favorite-movies"})
-  @SecurityRequirement(name = "Bearer Authentication")
-  public ResponseEntity<MovieDTO> addMovie(@Valid @RequestBody MovieRequest movieRequest)
-      throws ResourceNotFoundException {
+  public ResponseEntity<MovieDTO> addMovie(@Valid @RequestBody MovieRequest movieRequest) {
 
-    Movie movie = movieService.addMovie(movieRequest);
+    Movie movie = movieService.addFavoriteMovie(movieRequest);
     return ResponseEntity.status(HttpStatus.CREATED).body(new MovieDTO(movie));
   }
 
   @DeleteMapping("/{movieTitle}")
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "Remove a movie from the favorite movie list", tags = {"favorite-movies"})
-  @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<Object> removeMovie(@PathVariable String movieTitle) throws ResourceNotFoundException {
 
-    movieService.removeMovie(movieTitle);
+    movieService.removeFavoriteMovie(movieTitle);
     return ResponseEntity.noContent().build();
   }
 
   @GetMapping
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "List favorite movies", tags = {"favorite-movies"})
-  @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<Set<Movie>> favoriteMovies() throws ResourceNotFoundException {
 
     return ResponseEntity.accepted().body(movieService.listFavoriteMovies());

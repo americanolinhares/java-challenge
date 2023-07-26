@@ -23,14 +23,12 @@ import org.springframework.web.context.WebApplicationContext;
 import com.aubay.challenge.backend.AubayApplication;
 import com.aubay.challenge.backend.entity.Role;
 import com.aubay.challenge.backend.entity.User;
-import com.aubay.challenge.backend.entity.requests.UserRequest;
 import com.aubay.challenge.backend.repository.MovieRepository;
 import com.aubay.challenge.backend.repository.UserRepository;
 import com.aubay.challenge.backend.security.JwtUtils;
 import com.aubay.challenge.backend.service.MovieService;
 import com.aubay.challenge.backend.service.UserDetailsImpl;
 import com.aubay.challenge.backend.service.UserDetailsServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @AutoConfigureMockMvc
 @SpringBootTest(classes = AubayApplication.class)
@@ -46,9 +44,6 @@ class UserControllerIntegrationTest {
   @Autowired
   private UserRepository userRepository;
 
-  @Autowired
-  private ObjectMapper objectMapper;
-
   @MockBean
   private MovieService movieService;
 
@@ -57,7 +52,6 @@ class UserControllerIntegrationTest {
 
   @MockBean
   private UserDetailsServiceImpl userDetailsService;
-
 
   @MockBean
   private JwtUtils jwtUtils;
@@ -72,13 +66,14 @@ class UserControllerIntegrationTest {
   void createUser_ReturnsOK() throws Exception {
     // Given
     mockAuth();
-    UserRequest userRequest = new UserRequest();
-    userRequest.setUsername("maria");
-    userRequest.setPassword("12345678");
 
     // When
-    mockMvc.perform(put("/users").contentType("application/json").content(objectMapper.writeValueAsString(userRequest)))
-        .andExpect(status().isCreated());
+    mockMvc.perform(put("/users").contentType("application/json").content("""
+        {
+        "username":  "maria",
+        "password":  "12345678"
+        }
+        """)).andExpect(status().isCreated());
 
     // Then
     assertTrue(userRepository.findByUsername("maria").isPresent());

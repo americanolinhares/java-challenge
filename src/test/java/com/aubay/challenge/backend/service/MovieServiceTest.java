@@ -51,12 +51,13 @@ class MovieServiceTest {
     when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
     // When
-    Movie addedMovie = movieService.addMovie(new MovieRequest("Barbie"));
+    Movie addedMovie = movieService.addFavoriteMovie(new MovieRequest("Barbie"));
 
     // Then
     assertEquals(movie, addedMovie);
     assertEquals(1, addedMovie.getStarNumber());
     assertTrue(user.getFavoriteMovies().contains(movie));
+    // assertTrue(user.getFavoriteMovies().contains(new Movie()));
   }
 
   @Test
@@ -71,7 +72,7 @@ class MovieServiceTest {
     when(movieRepository.findByOriginalTitle("Barbie")).thenReturn(Optional.of(movie));
 
     // When
-    movieService.removeMovie("Barbie");
+    movieService.removeFavoriteMovie("Barbie");
 
     // Then
     assertFalse(user.getFavoriteMovies().contains(movie));
@@ -87,7 +88,7 @@ class MovieServiceTest {
     when(movieRepository.findByOriginalTitle("Barbie")).thenReturn(Optional.empty());
 
     // Then
-    assertThrows(ResourceNotFoundException.class, () -> movieService.removeMovie("Barbie"));
+    assertThrows(ResourceNotFoundException.class, () -> movieService.removeFavoriteMovie("Barbie"));
     assertFalse(user.getFavoriteMovies().contains(new Movie("Barbie")));
   }
 
