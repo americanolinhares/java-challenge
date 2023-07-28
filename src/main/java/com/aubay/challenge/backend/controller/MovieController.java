@@ -1,7 +1,5 @@
 package com.aubay.challenge.backend.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +28,7 @@ public class MovieController {
   @PutMapping
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @Operation(summary = "Populate Movies Database", tags = {"movies"})
-  public ResponseEntity<List<Movie>> populateMovies() throws URISyntaxException, IOException {
+  public ResponseEntity<List<Movie>> populateMovies() throws Exception {
 
     List<Movie> movies = movieService.populateDatabase();
     return ResponseEntity.ok(movies);
@@ -52,4 +50,3 @@ public class MovieController {
     return ResponseEntity.ok(movieService.listTopTenMoviesWithRateLimit());
   }
 }
-

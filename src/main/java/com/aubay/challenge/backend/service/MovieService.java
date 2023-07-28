@@ -1,15 +1,10 @@
 package com.aubay.challenge.backend.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -20,16 +15,17 @@ import com.aubay.challenge.backend.entity.requests.MovieRequest;
 import com.aubay.challenge.backend.exception.ResourceNotFoundException;
 import com.aubay.challenge.backend.repository.MovieRepository;
 import com.aubay.challenge.backend.repository.UserRepository;
+import com.aubay.challenge.backend.service.movieapi.ImdbBotApi;
+import com.aubay.challenge.backend.service.movieapi.MovieDbApi;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hazelcast.core.HazelcastInstance;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 
 @Service
 @Transactional
 public class MovieService {
-
-  private static final Logger logger = LoggerFactory.getLogger(MovieService.class);
 
   @Autowired
   MovieRepository movieRepository;
@@ -41,19 +37,18 @@ public class MovieService {
   ObjectMapper objectMapper;
 
   @Autowired
-  private HazelcastInstance cache;
+  ImdbBotApi imdbBotApi;
 
   @Autowired
-  MovieServiceExternalApiOne externalApiOne;
+  MovieDbApi movieDbApi;
 
-  @Value("${app.movieApiToken}")
-  private String token;
-
-  @Value("${app.movieApiUrl}")
-  private String movieApiUrl;
+  @Autowired
+  private HazelcastInstance cache;
 
   private static final String MOVIE_NOT_FOUND = "Movie not found";
   private static final String USER_NOT_FOUND = "User not found";
+  private static final String MOVIES = "movies";
+  // private static final Logger logger = LoggerFactory.getLogger(MovieService.class);
 
   public Movie addFavoriteMovie(MovieRequest newMovie) {
 
@@ -90,9 +85,15 @@ public class MovieService {
     return findUser(findUserPrincipal().getId()).getFavoriteMovies();
   }
 
-  public List<Movie> populateDatabase() throws IOException, URISyntaxException {
+  @CircuitBreaker(name = "movies", fallbackMethod = "populateDatabaseFallback")
+  public List<Movie> populateDatabase() throws Exception {
 
-    return movieRepository.saveAll(externalApiOne.retriveExternalMovies());
+    return movieRepository.saveAll(imdbBotApi.getExternalMovies());
+  }
+
+  public List<Movie> populateDatabaseFallback(RuntimeException e) throws Exception {
+
+    return movieRepository.saveAll(movieDbApi.getExternalMovies());
   }
 
   public List<Movie> listMovies() {
@@ -100,21 +101,16 @@ public class MovieService {
     return movieRepository.findAll();
   }
 
-  @RateLimiter(name = "movies", fallbackMethod = "getTopMoviesFallback")
+  @RateLimiter(name = MOVIES, fallbackMethod = "getTopMoviesFallback")
   public List<Movie> listTopTenMoviesWithRateLimit() {
 
-    logger.warn(
-        "111111111111111111111111111111111111111111111111111111111111111111111111111111listTopTenMoviesWithRateLimit()11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
-
     List<Movie> movies = movieRepository.findTop10ByOrderByStarNumberDesc();
-    retrieveCache().put("movies", movies);
+    retrieveCache().put(MOVIES, movies);
     return movies;
   }
 
   public List<Movie> getTopMoviesFallback(RequestNotPermitted ex) {
-    logger.warn(
-        "22222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222getTopMoviesFallback()2222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222");
-    return (List<Movie>) retrieveCache().get("movies");
+    return (List<Movie>) retrieveCache().get(MOVIES);
   }
 
   private UserDetailsImpl findUserPrincipal() throws ResourceNotFoundException {
@@ -146,6 +142,6 @@ public class MovieService {
 
   private ConcurrentMap<String, Object> retrieveCache() {
 
-    return cache.getMap("movies");
+    return cache.getMap(MOVIES);
   }
 }

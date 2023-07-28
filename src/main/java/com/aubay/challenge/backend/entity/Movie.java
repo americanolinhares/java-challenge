@@ -2,6 +2,7 @@ package com.aubay.challenge.backend.entity;
 
 import java.io.Serializable;
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,11 +19,11 @@ public class Movie implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @JsonProperty("id")
   private Long id;
 
   @Column(name = "original_title", nullable = false, unique = true, length = 45)
   @JsonProperty("original_title")
+  @JsonAlias("#TITLE")
   private String originalTitle;
 
   @Column(name = "star_number", nullable = false)
