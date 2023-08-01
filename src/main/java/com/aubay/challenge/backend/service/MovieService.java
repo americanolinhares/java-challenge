@@ -54,16 +54,27 @@ public class MovieService {
 
   public Movie addFavoriteMovie(MovieRequest newMovie) {
 
+    /*
+     * UserDetailsImpl userDetails = findUserPrincipal(); User user = findUser(userDetails.getId());
+     * Movie movie = findMovie(newMovie.title()); movie.addStarNumber(); /* 0 star - user 1 0 star -
+     * user 2 0 star - user 3 1 star - user 1 1 star - user 2 1 star - user 3 TODO: Fix race condition
+     * 
+     * user.addMovie(movie); userRepository.save(user);
+     */
+
     UserDetailsImpl userDetails = findUserPrincipal();
     User user = findUser(userDetails.getId());
     Movie movie = findMovie(newMovie.title());
-    movie.addStarNumber();
-    /*
-     * 0 star - user 1 0 star - user 2 0 star - user 3 1 star - user 1 1 star - user 2 1 star - user 3
-     * TODO: Fix race condition
-     */
-    user.addMovie(movie);
-    userRepository.save(user);
+
+    synchronized (movie) {
+      movie.addStarNumber();
+    }
+
+    synchronized (user) {
+      user.addMovie(movie);
+      userRepository.save(user);
+    }
+
     return movie;
   }
 
@@ -77,9 +88,15 @@ public class MovieService {
       throw new ResourceNotFoundException("That movie does not belong to the user's favorite list.");
     }
 
-    movie.subtractStarNumber();
-    user.removeMovie(movie);
-    return userRepository.save(user);
+    synchronized (movie) {
+      movie.subtractStarNumber();
+    }
+
+    synchronized (user) {
+      user.removeMovie(movie);
+      userRepository.save(user);
+    }
+    return user;
   }
 
   public Set<Movie> listFavoriteMovies() throws ResourceNotFoundException {

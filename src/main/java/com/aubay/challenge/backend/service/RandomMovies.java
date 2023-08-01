@@ -1,5 +1,6 @@
 package com.aubay.challenge.backend.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,15 +40,10 @@ public class RandomMovies {
         .filter(user -> !user.equals(currentUser))
         .map(User::getFavoriteMovies)
         .map(movies -> movies.stream().map(Movie::getOriginalTitle).collect(Collectors.toSet()))
-        .collect(Collectors.toList());
-
-    otherUsersFavoriteMovies.forEach(favoriteMovies -> {
-      favoriteMovies.forEach(movie -> System.out.print(movie + " "));
-      System.out.println();
-    });
+        .toList();
 
     int maxMatch = 0;
-    Set<String> setWithGreatestMatch = null;
+    Set<String> setWithGreatestMatch = new HashSet<>();
 
     for (Set<String> favoriteMovies : otherUsersFavoriteMovies) {
       int matchCount = 0;
@@ -63,11 +59,7 @@ public class RandomMovies {
       }
     }
 
-    System.out.println(setWithGreatestMatch);
-
     setWithGreatestMatch.removeAll(currentUserFavoriteMovies);
-
-    System.out.println(setWithGreatestMatch);
 
     return setWithGreatestMatch.stream().findFirst().orElse(null);
 
