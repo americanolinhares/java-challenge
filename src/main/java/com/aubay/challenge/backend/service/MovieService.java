@@ -45,10 +45,12 @@ public class MovieService {
   @Autowired
   private HazelcastInstance cache;
 
+  @Autowired
+  RandomMovies randomMovies;
+
   private static final String MOVIE_NOT_FOUND = "Movie not found";
   private static final String USER_NOT_FOUND = "User not found";
   private static final String MOVIES = "movies";
-  // private static final Logger logger = LoggerFactory.getLogger(MovieService.class);
 
   public Movie addFavoriteMovie(MovieRequest newMovie) {
 
@@ -109,8 +111,57 @@ public class MovieService {
     return movies;
   }
 
+  @SuppressWarnings("unchecked")
   public List<Movie> getTopMoviesFallback(RequestNotPermitted ex) {
     return (List<Movie>) retrieveCache().get(MOVIES);
+  }
+
+  public Movie addRandomMovie() {
+
+    Optional<Movie> randomMovie = movieRepository.findByOriginalTitle(randomMovies.getNewSuggestedMovie());
+    if (randomMovie.isPresent()) {
+      UserDetailsImpl userDetails = findUserPrincipal();
+      User user = findUser(userDetails.getId());
+      Movie movie = findMovie(randomMovies.getNewSuggestedMovie());
+      movie.addStarNumber();
+      user.addMovie(movie);
+      userRepository.save(user);
+      return movie;
+    }
+    return findAleatoryMovie();
+  }
+
+  private Movie findAleatoryMovie() {
+    UserDetailsImpl userDetails = findUserPrincipal();
+    User user = findUser(userDetails.getId());
+
+    List<Movie> allMovies = movieRepository.findAll();
+    Set<Movie> favoriteMovies = user.getFavoriteMovies();
+
+    List<Movie> nonFavoriteMovies = allMovies.stream()
+        .filter(movie -> !favoriteMovies.contains(movie))
+        .toList();
+
+    if (!nonFavoriteMovies.isEmpty()) {
+      Movie movieToAdd = nonFavoriteMovies.get(0);
+      movieToAdd.addStarNumber();
+      user.addMovie(movieToAdd);
+      userRepository.save(user);
+      return movieToAdd;
+    }
+
+    // if no movie is found, add a default movie
+    Movie favoriteMovie = new Movie("Favorite Movie");
+
+    if (user.getFavoriteMovies().contains(favoriteMovie)) {
+      throw new ResourceNotFoundException("All existing movies already added to the favorite movie list.");
+    }
+
+    favoriteMovie.addStarNumber();
+    movieRepository.save(favoriteMovie);
+    user.addMovie(favoriteMovie);
+    userRepository.save(user);
+    return favoriteMovie;
   }
 
   private UserDetailsImpl findUserPrincipal() throws ResourceNotFoundException {

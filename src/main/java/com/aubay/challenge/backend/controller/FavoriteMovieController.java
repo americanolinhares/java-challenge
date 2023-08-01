@@ -58,5 +58,13 @@ public class FavoriteMovieController {
 
     return ResponseEntity.accepted().body(movieService.listFavoriteMovies());
   }
-}
 
+  @PutMapping("/random")
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+  @Operation(summary = "Add random movie to the favorite movie list", tags = {"favorite-movies"})
+  public ResponseEntity<MovieDTO> randomMovie() throws ResourceNotFoundException {
+
+    Movie movie = movieService.addRandomMovie();
+    return ResponseEntity.status(HttpStatus.CREATED).body(new MovieDTO(movie));
+  }
+}

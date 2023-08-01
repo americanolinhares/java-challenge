@@ -95,4 +95,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
   }
+
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  @ExceptionHandler(InternalServerErrorException.class)
+  public ResponseEntity<Map<String, String>> internalServerErrorExceptionn(InternalServerErrorException ex,
+      WebRequest request) {
+    Map<String, String> body = new HashMap<>();
+
+    body.put(MESSAGE, ex.getMessage());
+
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+  }
 }

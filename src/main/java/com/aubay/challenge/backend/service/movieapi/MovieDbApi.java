@@ -17,11 +17,11 @@ public class MovieDbApi extends MovieApiTemplate {
   @Autowired
   ObjectMapper objectMapper;
 
-  @Value("${app.mainApiToken}")
-  private String token;
-
   @Value("${app.mainApiUrl}")
   private String movieApiUrl;
+
+  @Value("${app.mainApiToken}")
+  private String token;
 
   @Override
   public List<Movie> getExternalMovies() throws Exception {
