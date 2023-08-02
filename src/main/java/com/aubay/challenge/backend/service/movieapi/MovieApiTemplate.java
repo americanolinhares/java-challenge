@@ -7,4 +7,6 @@ public abstract class MovieApiTemplate {
 
   public abstract List<Movie> getExternalMovies() throws Exception;
 
+  public abstract String getApiCode();
+
 }

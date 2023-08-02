@@ -33,17 +33,9 @@ public class MovieDbApi extends MovieApiTemplate {
     return objectMapper.readValue(externalApiContent, ExternalApiMovieResponse.class).getResults();
   }
 
-  /*
-   * @Override public List<Movie> retriveExternalMovies() throws IOException, URISyntaxException {
-   * 
-   * MovieExternalApi externalApi = new MovieDbApi();
-   * 
-   * WebClient client = externalApi.createWebClient();
-   * 
-   * String externalApiContent = client.post().uri(new URI(movieApiUrl)).header("Authorization",
-   * token).accept( MediaType.APPLICATION_JSON).retrieve() .bodyToMono(String.class).block();
-   * 
-   * return objectMapper.readValue(externalApiContent, ExternalApiMovieResponse.class).getResults(); }
-   */
+  @Override
+  public String getApiCode() {
 
+    return "2";
+  }
 }

@@ -15,9 +15,7 @@ import com.aubay.challenge.backend.entity.requests.MovieRequest;
 import com.aubay.challenge.backend.exception.ResourceNotFoundException;
 import com.aubay.challenge.backend.repository.MovieRepository;
 import com.aubay.challenge.backend.repository.UserRepository;
-import com.aubay.challenge.backend.service.movieapi.ImdbBotApi;
-import com.aubay.challenge.backend.service.movieapi.MovieDbApi;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.aubay.challenge.backend.service.movieapi.MovieExternalApiService;
 import com.hazelcast.core.HazelcastInstance;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
@@ -34,13 +32,7 @@ public class MovieService {
   UserRepository userRepository;
 
   @Autowired
-  ObjectMapper objectMapper;
-
-  @Autowired
-  ImdbBotApi imdbBotApi;
-
-  @Autowired
-  MovieDbApi movieDbApi;
+  private MovieExternalApiService externalApiService;
 
   @Autowired
   private HazelcastInstance cache;
@@ -107,12 +99,12 @@ public class MovieService {
   @CircuitBreaker(name = "movies", fallbackMethod = "populateDatabaseFallback")
   public List<Movie> populateDatabase() throws Exception {
 
-    return movieRepository.saveAll(imdbBotApi.getExternalMovies());
+    return movieRepository.saveAll(externalApiService.getExternalMovies("1"));
   }
 
   public List<Movie> populateDatabaseFallback(RuntimeException e) throws Exception {
 
-    return movieRepository.saveAll(movieDbApi.getExternalMovies());
+    return movieRepository.saveAll(externalApiService.getExternalMovies("2"));
   }
 
   public List<Movie> listMovies() {
@@ -128,7 +120,6 @@ public class MovieService {
     return movies;
   }
 
-  @SuppressWarnings("unchecked")
   public List<Movie> getTopMoviesFallback(RequestNotPermitted ex) {
     return (List<Movie>) retrieveCache().get(MOVIES);
   }
