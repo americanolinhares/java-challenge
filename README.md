@@ -81,9 +81,9 @@ This is a simple project with a challenge for Backend developers.
 
 #### Include Hazelcast, design pattern, Resilience4J
 
-- [ ] Include this rank top movies in the cache (Hazelcast), and get from it using RateLimiter (https://resilience4j.readme.io/docs/ratelimiter) as fallback.
-- [ ] Find another API to get Movies, and update the first endpoint to use the template method design pattern to be able to get the movies from both APIs. Use a CircuitBreak for that. If you have any problem with one API you should get it from the other API as a fallback. (You can try changing the API Key)
-- [ ] Create a new endpoint to send a random movie to the user.
+- [X] Include this rank top movies in the cache (Hazelcast), and get from it using RateLimiter (https://resilience4j.readme.io/docs/ratelimiter) as fallback.
+- [X] Find another API to get Movies, and update the first endpoint to use the template method design pattern to be able to get the movies from both APIs. Use a CircuitBreak for that. If you have any problem with one API you should get it from the other API as a fallback. (You can try changing the API Key)
+- [X] Create a new endpoint to send a random movie to the user.
 This endpoint should do this: find another user who likes the same movies as the current user and upload a random movie from that favorites list.
 If this condition does not exist, just send a random movie.
 
@@ -106,10 +106,10 @@ If this condition does not exist, just send a random movie.
 
 #### Part 1 - Docker, Kubernetes
 
-- [ ] Run your application using Docker, create a docker file.
-- [ ] Create the files to deploy the application using kubernetes.
-- [ ] Include the probes from actuator in your deployment.yaml
-- [ ] Deploy your application in local environment using Kubernetes.
+- [X] Run your application using Docker, create a docker file.
+- [X] Create the files to deploy the application using kubernetes.
+- [X] Include the probes from actuator in your deployment.yaml
+- [X] Deploy your application in local environment using Kubernetes.
 
 
 **Expected time:** 27 | 17 | 7 hours
